@@ -1,13 +1,11 @@
 [
 	{
-		"_id": "5b3fb7e2142ec330ec76f52b",
 		"username": "simus",
 		"password": "simus",
 		"firstName": "Steven",
 		"lastName": "Imus"
 	},
 	{
-		"_id": "6b3fb7e2142ec330ec76f52c",
 		"username": "brian",
 		"password": "brian",
 		"firstName": "Brian",
