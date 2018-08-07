@@ -11,6 +11,7 @@ const { dbConnect } = require('./db-mongoose');
 // const {dbConnect} = require('./db-knex');
 
 const { router: usersRouter } = require('./users');
+const { router: questionsRouter } = require('./questions');
 const { router: authRouter, localStrategy, jwtStrategy } = require('./auth');
 
 const app = express();
@@ -32,6 +33,7 @@ passport.use(jwtStrategy);
 
 app.use('/api/users', usersRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/questions', questionsRouter);
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
 

@@ -18,24 +18,13 @@ const UserSchema = mongoose.Schema({
   lastName: {type: String, default: ''}
 });
 
-UserSchema.set('timestamps', true);
-
-UserSchema.set('toObject', {
-  virtuals: true,
-  versionKey: false,
-  transform: (doc, ret) => {
-    delete $oid._id;
-  }
-});
-
-// UserSchema.methods.serialize = function() {
-//   return {
-//     id: this._id,
-//     username: this.username || '',
-//     firstName: this.firstName || '',
-//     lastName: this.lastName || ''
-//   };
-// };
+UserSchema.methods.serialize = function() {
+  return {
+    username: this.username || '',
+    firstName: this.firstName || '',
+    lastName: this.lastName || ''
+  };
+};
 
 UserSchema.methods.validatePassword = function(password) {
   return bcrypt.compare(password, this.password);
@@ -44,6 +33,16 @@ UserSchema.methods.validatePassword = function(password) {
 UserSchema.statics.hashPassword = function(password) {
   return bcrypt.hash(password, 10);
 };
+
+UserSchema.set('timestamps', true);
+
+UserSchema.set('toObject', {
+  virtuals: true,
+  versionKey: false,
+  transform: (doc, ret) => {
+    delete ret._id;
+  }
+});
 
 const User = mongoose.model('User', UserSchema);
 
