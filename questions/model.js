@@ -4,15 +4,14 @@ const mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
 
-const NotecardSchema = mongoose.Schema({
-	quizId: { type: mongoose.Schema.Types.ObjectId, ref: 'Quiz' },
+const QuestionSchema = mongoose.Schema({
 	question: { type: String, required: true },
 	answer: { type: String, required: true }
 });
 
-NotecardSchema.set('timestamps', true);
+QuestionSchema.set('timestamps', true);
 
-NotecardSchema.set('toObject', {
+QuestionSchema.set('toObject', {
 	virtuals: true,
 	versionKey: false,
 	transform: (doc, ret) => {
@@ -20,5 +19,5 @@ NotecardSchema.set('toObject', {
 	}
 });
 
-const Notecard = mongoose.model('Notecard', NotecardSchema);
-module.exports = {Notecard};
+const Question = mongoose.model('Question', QuestionSchema);
+module.exports = {Question};
