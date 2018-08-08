@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const {Question} = require('./model');
+const QuestionList = require('./list');
 
 const router = express.Router();
 
@@ -39,6 +40,8 @@ router.put('/:id', (req, res) => {
 	// enter question's answer handling process here
 	const {id} = req.params;
 	const q = Question.findById(id);
+	const bodyQuestion = req.body;
+
 	//if question is right => LinkedList.findNextWithCorrect
 	//if question is wrong => LinkedList.findNextWithIncorrect
 })
