@@ -39,7 +39,7 @@ router.get('/', (req, res) => {
 	return Question.find()
 		.then(questions => {
 			console.log(questions);
-			return res.json(questions);
+			return res.json(questions[0]);
 		})
 		.catch(err => res.status(500).json({message: 'Internal server error'}));
 });
