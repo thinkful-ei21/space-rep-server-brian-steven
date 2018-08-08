@@ -35,7 +35,16 @@ router.post('/', jsonParser, (req, res) => {
 		});
 });
 
+router.put('/:id', (req, res) => {
+	// enter question's answer handling process here
+	const {id} = req.params;
+	const q = Question.findById(id);
+	//if question is right => LinkedList.findNextWithCorrect
+	//if question is wrong => LinkedList.findNextWithIncorrect
+})
+
 router.get('/', (req, res) => {
+	// @TODO: change this to return the next question in the LinkedList
 	return Question.find()
 		.then(questions => {
 			console.log(questions);
