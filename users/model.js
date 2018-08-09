@@ -2,6 +2,8 @@
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 
+const QuestionsList = require('../questions-list/model');
+
 mongoose.Promise = global.Promise;
 
 const UserSchema = mongoose.Schema({

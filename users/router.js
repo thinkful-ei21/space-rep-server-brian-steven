@@ -3,6 +3,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const {User} = require('./model');
+const {Question} = require('../questions/model');
+const {QuestionsList} = require('../questions-list/model');
 
 const router = express.Router();
 
@@ -106,15 +108,78 @@ router.post('/', jsonParser, (req, res) => {
       // If there is no existing user, hash the password
       return User.hashPassword(password);
     })
+
+    /*                                          (_id of next node)
+  user: { question: { value: String, next: _id } }
+    */
     .then(hash => {
-      return User.create({
-        username,
-        password: hash,
-        firstName,
-        lastName
-      });
+      // console.log(`questions: ${questions}, hash: ${hash}`);
+      // let lastId = null;
+      // let head = QuestionsList.create({
+      //   value: questions[0].id,
+      //   next: null
+      // });
+      // let iter = head;
+      // let index = 1;
+      // let objs = questions.map(question => {
+        // if(index < questions.length-1) {
+          // TODO: How should these objects be structured?
+          // How can I make the next point to the next node
+          // return {
+            // value: question.id
+            // next: questions[index+1].id
+          // };
+        // } else {
+        //   return {
+        //     value: questions[index].id,
+        //     next: null
+        //   };
+        // }
+      // });
+      // console.log(objs);
+      // return QuestionsList.insertMany(objs);
+    // })
+    // .then(res => {
+    //   console.log(res);
+    //   return QuestionsList.find();
+    // })
+    // .then(res => {
+    //   console.log(`response: ${res}, username:${username}`);
+      return Promise.all(
+        User.create({ username, password: hash, firstName, lastName })
     })
+      // console.log(`head: ${head}`);
+      // while(index < questions.length) {
+      //   const node = QuestionsList.create({
+      //     value: questions[index],
+      //     next: null
+      //   });
+      //   iter.next = node.id;
+      //   iter = iter.next;
+      //   index++;
+      // }
+      // questions.map((question, index) => {
+
+      //     QuestionsList.create({
+      //       value: index,
+      //       next: null
+      //     })
+      //     .then(questionItem => {
+      //       if(lastId !== null) {
+      //         const temp = lastId;
+      //         lastId = questionItem.id;
+      //         QuestionsList.findByIdAndUpdate(temp, {
+      //           next: lastId
+      //         });
+      //       }
+      //       // iter++;
+      //       // index.push(questionItem.id);
+      //     })
+      
+    // })
     .then(user => {
+      let obj = user.serialize();
+      obj.questionsList = QuestionsList.findById(user.questionsList)
       return res.status(201).json(user.serialize());
     })
     .catch(err => {
@@ -136,5 +201,22 @@ router.get('/', (req, res) => {
     .then(users => res.json(users.map(user => user.serialize())))
     .catch(err => res.status(500).json({message: 'Internal server error'}));
 });
+
+function serializeQuestions(questionListId) {
+  return QuestionsList.findById(questionsListId)
+    .then(item => {
+      if(item.next !== null) {
+        return Promise.all([
+          Question.findById(item.value),
+          serializeQuestions(item.next)
+        ]);
+      } else {
+        return Question.findById(item.value)
+      }
+    })
+    .catch(err => {
+      return 'serialize question error';
+    });
+}
 
 module.exports = {router};

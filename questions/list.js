@@ -1,5 +1,5 @@
-const LinkedList = require('../LinkedList');
+// const LinkedList = require('../LinkedList');
 
-export default class QuestionList {
-
-}
+// export default class QuestionList {
+	
+// }
