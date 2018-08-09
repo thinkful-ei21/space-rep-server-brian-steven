@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const {Question} = require('./model');
+const {User} = require('../users/model');
 
 const router = express.Router();
 
@@ -36,8 +37,8 @@ router.post('/', jsonParser, (req, res) => {
 });
 
 router.post('/answer', (req, res) => {
-	console.log(req.body);
-	let { userAnswer='', userId='' } = req.body;
+	let { userAnswer, userId} = req.body;
+	console.log(`userAnswer: ${userAnswer}, userId: ${userId}`);
 	if(userAnswer === '' || userId === '') {
 		return res.status(422).json({code:422,reason:'ValidationError',message:'Missing Field'});
 	}
