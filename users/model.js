@@ -2,6 +2,8 @@
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 
+const QuestionsList = require('../questions-list/model');
+
 mongoose.Promise = global.Promise;
 
 const UserSchema = mongoose.Schema({
@@ -16,7 +18,15 @@ const UserSchema = mongoose.Schema({
   },
   firstName: {type: String, default: ''},
   lastName: {type: String, default: ''},
-  questionsList: {type: mongoose.Schema.Types.ObjectId, ref:'QuestionsList'}
+  questionsList: [
+    {
+      _id: mongoose.Schema.Types.ObjectId,
+      question: String,
+      answer: String,
+      memoryStrength: Number,
+      next: Number
+    }
+  ]
 });
 
 UserSchema.methods.serialize = function() {

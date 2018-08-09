@@ -111,12 +111,9 @@ router.post('/', jsonParser, (req, res) => {
         Question.find()
       );
     })
-
-    /*                                          (_id of next node)
-  user: { question: { value: String, next: _id } }
-    */
     .then((hash, questions) => {
       let qs = questions.map((question, index) => {
+        console.log(index);
         return ({
           question: question.question,
           answer: question.answer,
