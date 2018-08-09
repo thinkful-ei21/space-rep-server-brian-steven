@@ -18,20 +18,23 @@ const UserSchema = mongoose.Schema({
   lastName: {type: String, default: ''},
   questionsList: [
     {
-      _id: mongoose.Schema.Types.ObjectId,
       question: String,
       answer: String,
-      memoryStrength: Number,
+      mValue: Number,
       next: Number
     }
-  ]
+  ],
+  head: {type: Number }
 });
 
 UserSchema.methods.serialize = function() {
+
   return {
     username: this.username || '',
     firstName: this.firstName || '',
-    lastName: this.lastName || ''
+    lastName: this.lastName || '',
+    question: this.questionsList[this.head] || '',
+    id: this._id || ''
   };
 };
 

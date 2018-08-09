@@ -35,6 +35,26 @@ router.post('/', jsonParser, (req, res) => {
 		});
 });
 
+router.post('/answer', (req, res) => {
+	let { userAnswer, user } = req.body;
+	return User.findById(user.id)
+		.then(user => {
+			const lastAnswer = user.questionsList[user.head].answer === userAnswer;
+			let currentIndex = user.head;
+			let cursor = currentIndex;
+			user.head = user.questionsList[currentIndex].next;
+			if(!lastAnswer) {
+				cursor = user.questionsList[user.questionsList[currentIndex].next].next;
+				user.questionsList[currentIndex].next = user.questionsList[cursor].next;
+				user.questionsList[cursor].next = currentIndex;
+			}
+			return res.status(201).json({nextQuestion: user.questionsList[user.head], lastAnswer: lastAnswer});
+		})
+		.catch(err => {
+			res.status(500).json({code: 500, message: 'internal server error'});
+		});
+})
+
 router.put('/:id', (req, res) => {
 	// enter question's answer handling process here
 	const {id} = req.params;

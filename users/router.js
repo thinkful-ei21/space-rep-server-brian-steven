@@ -86,7 +86,7 @@ router.post('/', jsonParser, (req, res) => {
     });
   }
 
-  let {username, password, firstName = '', lastName = '', questionsList = []} = req.body;
+  let {username, password, firstName = '', lastName = '', questionsList = [], head = 0} = req.body;
   // let questions = '';
   // Username and password come in pre-trimmed, otherwise we throw an error
   // before this
@@ -103,8 +103,8 @@ router.post('/', jsonParser, (req, res) => {
         });
       });
       // indicate the end of the list by setting index of next to -1
-      questionsList[questionsList.length-1].next = -1;
-      console.log(...questionsList);
+      // questionsList[questionsList.length-1].next = -1;
+      // console.log(...questionsList);
       return User.find({username}).countDocuments();
     })
     .then(count => {
@@ -127,7 +127,8 @@ router.post('/', jsonParser, (req, res) => {
         password: hash,
         firstName: firstName,
         lastName: lastName,
-        questionsList: questionsList
+        questionsList: questionsList,
+        head: head
       };
       return User.create(userObj);
     })
@@ -159,21 +160,22 @@ router.get('/', (req, res) => {
     .catch(err => res.status(500).json({message: 'Internal server error'}));
 });
 
-function serializeQuestions(questionListId) {
-  return QuestionsList.findById(questionsListId)
-    .then(item => {
-      if(item.next !== null) {
-        return Promise.all([
-          Question.findById(item.value),
-          serializeQuestions(item.next)
-        ]);
-      } else {
-        return Question.findById(item.value)
-      }
+router.get('/:id', (req, res) => {
+  const {id} = req.params;
+  return User.findById(id)
+    .then(user => res.json(user.serialize()))
+    .catch(err => res.status(500).json({message: 'internal server error'}));
+});
+
+router.delete('/:id', (req, res) => {
+  const {id} = req.params;
+  return User.findByIdAndRemove(id)
+    .then(() => {
+      res.sendStatus(204);
     })
     .catch(err => {
-      return 'serialize question error';
+      res.status(500).json({message: 'ID not found'});
     });
-}
+});
 
 module.exports = {router};
