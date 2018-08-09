@@ -44,14 +44,14 @@ router.put('/:id', (req, res) => {
 
 	//if question is right => LinkedList.findNextWithCorrect
 	//if question is wrong => LinkedList.findNextWithIncorrect
-})
+});
 
 router.get('/', (req, res) => {
 	// @TODO: change this to return the next question in the LinkedList
 	return Question.find()
 		.then(questions => {
 			console.log(questions);
-			return res.json(questions[0]);
+			return res.json(questions);
 		})
 		.catch(err => res.status(500).json({message: 'Internal server error'}));
 });
