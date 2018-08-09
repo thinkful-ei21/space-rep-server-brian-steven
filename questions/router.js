@@ -13,14 +13,14 @@ const jsonParser = bodyParser.json();
 router.post('/', jsonParser, (req, res) => {
 	const requiredFields = ['question', 'answer'];
 	const missingField = requiredFields.find(field => !(field in req.body));
-	if(missingField) {
-		return res.status(422).json({
-			code: 422,
-			reason: 'ValidationError',
-			message: 'Missing field',
-			location: missingField
-		});
-	}
+	// if(missingField) {
+	// 	return res.status(422).json({
+	// 		code: 422,
+	// 		reason: 'ValidationError',
+	// 		message: 'Missing field',
+	// 		location: missingField
+	// 	});
+	// }
 
 	let {question, answer} = req.body;
 	question = question.trim();
@@ -39,10 +39,10 @@ router.post('/', jsonParser, (req, res) => {
 router.post('/answer/:id', jsonParser, (req, res) => {
 	const { id } = req.params;
 	let { userAnswer } = req.body;
-	console.log(`userAnswer: ${userAnswer}, userId: ${id}`);
-	if(!userAnswer) {
-		return res.status(422).json({code:422, reason:'ValidationError', message:'Missing Field'});
-	}
+	// console.log(`userAnswer: ${userAnswer}, userId: ${id}`);
+	// if(!userAnswer) {
+	// 	return res.status(422).json({code:422, reason:'ValidationError', message:'Missing Field'});
+	// }
 	return User.findById(id)
 		.then(user => {
 			const lastAnswer = user.questionsList[user.head].answer === userAnswer;
