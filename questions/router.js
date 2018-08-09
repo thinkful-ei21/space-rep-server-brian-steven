@@ -36,8 +36,12 @@ router.post('/', jsonParser, (req, res) => {
 });
 
 router.post('/answer', (req, res) => {
-	let { userAnswer, user } = req.body;
-	return User.findById(user.id)
+	console.log(req.body);
+	let { userAnswer='', userId='' } = req.body;
+	if(userAnswer === '' || userId === '') {
+		return res.status(422).json({code:422,reason:'ValidationError',message:'Missing Field'});
+	}
+	return User.findById(userId)
 		.then(user => {
 			const lastAnswer = user.questionsList[user.head].answer === userAnswer;
 			let currentIndex = user.head;
@@ -48,6 +52,8 @@ router.post('/answer', (req, res) => {
 				user.questionsList[currentIndex].next = user.questionsList[cursor].next;
 				user.questionsList[cursor].next = currentIndex;
 			}
+			console.log(`questions: ${user.questionsList}, head: ${user.head}`);
+			user.save();
 			return res.status(201).json({nextQuestion: user.questionsList[user.head], lastAnswer: lastAnswer});
 		})
 		.catch(err => {
