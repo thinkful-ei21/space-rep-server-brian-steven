@@ -1,5 +1,6 @@
 'use strict';
 const express = require('express');
+const passport = require('passport');
 const bodyParser = require('body-parser');
 
 const {Question} = require('./model');
@@ -7,6 +8,7 @@ const {User} = require('../users/model');
 
 const router = express.Router();
 
+const jwtAuth = passport.authenticate('jwt', {session: false});
 const jsonParser = bodyParser.json();
 
 // Post to register a new user
@@ -36,14 +38,15 @@ router.post('/', jsonParser, (req, res) => {
 		});
 });
 
-router.post('/answer/:id', jsonParser, (req, res) => {
-	const { id } = req.params;
-	let { userAnswer } = req.body;
+router.post('/answer', jwtAuth, jsonParser, (req, res) => {
+
+	const user = req.user;
+	let { userAnswer, token } = req.body;
 	// console.log(`userAnswer: ${userAnswer}, userId: ${id}`);
 	// if(!userAnswer) {
 	// 	return res.status(422).json({code:422, reason:'ValidationError', message:'Missing Field'});
 	// }
-	return User.findById(id)
+	return User.findById(user.id)
 		.then(user => {
 			const lastAnswer = user.questionsList[user.head].answer === userAnswer;
 			let currentIndex = user.head;
