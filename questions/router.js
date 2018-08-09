@@ -38,9 +38,9 @@ router.post('/', jsonParser, (req, res) => {
 
 router.post('/answer/:id', jsonParser, (req, res) => {
 	const { id } = req.params;
-	let { userAnswer='' } = req.body;
+	let { userAnswer } = req.body;
 	console.log(`userAnswer: ${userAnswer}, userId: ${id}`);
-	if(userAnswer === '') {
+	if(!userAnswer) {
 		return res.status(422).json({code:422, reason:'ValidationError', message:'Missing Field'});
 	}
 	return User.findById(id)
