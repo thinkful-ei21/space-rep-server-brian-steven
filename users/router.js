@@ -3,6 +3,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const {User} = require('./model');
+const {Question} = require('../questions/model');
+const {QuestionsList} = require('../questions-list/model');
 
 const router = express.Router();
 
@@ -104,17 +106,29 @@ router.post('/', jsonParser, (req, res) => {
         });
       }
       // If there is no existing user, hash the password
-      return User.hashPassword(password);
+      return Promise.all(
+        User.hashPassword(password),
+        Question.find()
+      );
     })
-    .then(hash => {
-      return User.create({
-        username,
-        password: hash,
-        firstName,
-        lastName
+
+    /*                                          (_id of next node)
+  user: { question: { value: String, next: _id } }
+    */
+    .then((hash, questions) => {
+      let qs = questions.map((question, index) => {
+        return ({
+          question: question.question,
+          answer: question.answer,
+          memoryStrength: 1,
+          next: index+1
+        });
       });
+      return User.create({ username, password: hash, firstName, lastName, questionsList: qs });
     })
     .then(user => {
+      // let obj = user.serialize();
+      // obj.questionsList = QuestionsList.findById(user.questionsList)
       return res.status(201).json(user.serialize());
     })
     .catch(err => {
@@ -136,5 +150,22 @@ router.get('/', (req, res) => {
     .then(users => res.json(users.map(user => user.serialize())))
     .catch(err => res.status(500).json({message: 'Internal server error'}));
 });
+
+function serializeQuestions(questionListId) {
+  return QuestionsList.findById(questionsListId)
+    .then(item => {
+      if(item.next !== null) {
+        return Promise.all([
+          Question.findById(item.value),
+          serializeQuestions(item.next)
+        ]);
+      } else {
+        return Question.findById(item.value)
+      }
+    })
+    .catch(err => {
+      return 'serialize question error';
+    });
+}
 
 module.exports = {router};
