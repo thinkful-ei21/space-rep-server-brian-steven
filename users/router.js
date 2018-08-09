@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 
 const {User} = require('./model');
 const {Question} = require('../questions/model');
-const {QuestionsList} = require('../questions-list/model');
 
 const router = express.Router();
 
@@ -87,14 +86,27 @@ router.post('/', jsonParser, (req, res) => {
     });
   }
 
-  let {username, password, firstName = '', lastName = ''} = req.body;
+  let {username, password, firstName = '', lastName = '', questionsList = []} = req.body;
+  // let questions = '';
   // Username and password come in pre-trimmed, otherwise we throw an error
   // before this
   firstName = firstName.trim();
   lastName = lastName.trim();
-
-  return User.find({username})
-    .count()
+  return Question.find()
+    .then(questions => {
+      questionsList = questions.map((question, index) => {
+        return ({
+          question: question.question,
+          answer: question.answer,
+          memoryStrength: 1,
+          next: index+1
+        });
+      });
+      // indicate the end of the list by setting index of next to -1
+      questionsList[questionsList.length-1].next = -1;
+      console.log(...questionsList);
+      return User.find({username}).countDocuments();
+    })
     .then(count => {
       if (count > 0) {
         // There is an existing user with the same username
@@ -106,24 +118,23 @@ router.post('/', jsonParser, (req, res) => {
         });
       }
       // If there is no existing user, hash the password
-      return Promise.all(
-        User.hashPassword(password),
-        Question.find()
-      );
+      return User.hashPassword(password);
     })
-    .then((hash, questions) => {
-      let qs = questions.map((question, index) => {
-        console.log(index);
-        return ({
-          question: question.question,
-          answer: question.answer,
-          memoryStrength: 1,
-          next: index+1
-        });
-      });
-      return User.create({ username, password: hash, firstName, lastName, questionsList: qs });
+    .then(hash => {
+      console.log('about to create user');
+      const userObj = {
+        username: username,
+        password: hash,
+        firstName: firstName,
+        lastName: lastName,
+        questionsList: questionsList
+      };
+      return User.create(userObj);
     })
+    // .then(questions => {
+    // })
     .then(user => {
+      console.log('user has been created');
       // let obj = user.serialize();
       // obj.questionsList = QuestionsList.findById(user.questionsList)
       return res.status(201).json(user.serialize());
