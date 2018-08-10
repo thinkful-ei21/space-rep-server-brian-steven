@@ -15,14 +15,6 @@ const jsonParser = bodyParser.json();
 router.post('/', jsonParser, (req, res) => {
 	const requiredFields = ['question', 'answer'];
 	const missingField = requiredFields.find(field => !(field in req.body));
-	// if(missingField) {
-	// 	return res.status(422).json({
-	// 		code: 422,
-	// 		reason: 'ValidationError',
-	// 		message: 'Missing field',
-	// 		location: missingField
-	// 	});
-	// }
 
 	let {question, answer} = req.body;
 	question = question.trim();
@@ -42,10 +34,7 @@ router.post('/answer', jwtAuth, jsonParser, (req, res) => {
 
 	const user = req.user;
 	let { userAnswer, token } = req.body;
-	// console.log(`userAnswer: ${userAnswer}, userId: ${id}`);
-	// if(!userAnswer) {
-	// 	return res.status(422).json({code:422, reason:'ValidationError', message:'Missing Field'});
-	// }
+	console.log(userAnswer);
 	return User.findById(user.id)
 		.then(user => {
 			const lastAnswer = user.questionsList[user.head].answer === userAnswer;
